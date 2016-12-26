@@ -33,14 +33,26 @@ type Config struct {
 	Diffable bool // Adds extra newlines for more easily diffable output.
 
 	// Field and value options
-	IncludeUnexported bool // Include unexported fields in output
-	PrintStringers    bool // Call String on a fmt.Stringer
+	IncludeUnexported   bool // Include unexported fields in output
+	PrintStringers      bool // Call String on a fmt.Stringer
+	PrintTextMarshalers bool // Call MarshalText on an encoding.TextMarshaler
+	SkipZeroFields      bool // Skip struct fields that have a zero value.
 
 	// Output transforms
 	ShortList int // Maximum character length for short lists if nonzero.
 }
 
-var DefaultConfig = &Config{}
+// Default Config objects
+var (
+	// CompareConfig is the default configuration used for Compare.
+	CompareConfig = &Config{
+		Diffable:          true,
+		IncludeUnexported: true,
+	}
+
+	// DefaultConfig is the default configuration used for all other top-level functions.
+	DefaultConfig = &Config{}
+)
 
 func (cfg *Config) fprint(buf *bytes.Buffer, vals ...interface{}) {
 	for i, val := range vals {
@@ -51,7 +63,7 @@ func (cfg *Config) fprint(buf *bytes.Buffer, vals ...interface{}) {
 	}
 }
 
-// Print writes the default representation of the given values to standard output.
+// Print writes the DefaultConfig representation of the given values to standard output.
 func Print(vals ...interface{}) {
 	DefaultConfig.Print(vals...)
 }
@@ -61,7 +73,7 @@ func (cfg *Config) Print(vals ...interface{}) {
 	fmt.Println(cfg.Sprint(vals...))
 }
 
-// Sprint returns a string representation of the given value according to the default config.
+// Sprint returns a string representation of the given value according to the DefaultConfig.
 func Sprint(vals ...interface{}) string {
 	return DefaultConfig.Sprint(vals...)
 }
@@ -73,7 +85,7 @@ func (cfg *Config) Sprint(vals ...interface{}) string {
 	return buf.String()
 }
 
-// Fprint writes the representation of the given value to the writer according to the default config.
+// Fprint writes the representation of the given value to the writer according to the DefaultConfig.
 func Fprint(w io.Writer, vals ...interface{}) (n int64, err error) {
 	return DefaultConfig.Fprint(w, vals...)
 }
@@ -86,16 +98,19 @@ func (cfg *Config) Fprint(w io.Writer, vals ...interface{}) (n int64, err error)
 }
 
 // Compare returns a string containing a line-by-line unified diff of the
-// values in got and want.  Compare includes unexported fields.
+// values in got and want, using the CompareConfig.
 //
 // Each line in the output is prefixed with '+', '-', or ' ' to indicate if it
 // should be added to, removed from, or is correct for the "got" value with
 // respect to the "want" value.
 func Compare(got, want interface{}) string {
-	diffOpt := &Config{
-		Diffable:          true,
-		IncludeUnexported: true,
-	}
+	return CompareConfig.Compare(got, want)
+}
 
-	return diff.Diff(diffOpt.Sprint(got), diffOpt.Sprint(want))
+// Compare returns a string containing a line-by-line unified diff of the
+// values in got and want according to the cfg.
+func (cfg *Config) Compare(got, want interface{}) string {
+	diffCfg := *cfg
+	diffCfg.Diffable = true
+	return diff.Diff(cfg.Sprint(got), cfg.Sprint(want))
 }

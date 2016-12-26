@@ -15,18 +15,36 @@
 package pretty
 
 import (
+	"encoding"
 	"fmt"
 	"reflect"
 	"sort"
 )
 
+func isZeroVal(val reflect.Value) bool {
+	if !val.CanInterface() {
+		return false
+	}
+	z := reflect.Zero(val.Type()).Interface()
+	return reflect.DeepEqual(val.Interface(), z)
+}
+
 func (c *Config) val2node(val reflect.Value) node {
 	// TODO(kevlar): pointer tracking?
 
-	if c.PrintStringers && val.CanInterface() {
-		stringer, ok := val.Interface().(fmt.Stringer)
-		if ok {
-			return stringVal(stringer.String())
+	if !val.IsValid() {
+		return rawVal("nil")
+	}
+
+	if val.CanInterface() {
+		v := val.Interface()
+		if s, ok := v.(fmt.Stringer); ok && c.PrintStringers {
+			return stringVal(s.String())
+		}
+		if t, ok := v.(encoding.TextMarshaler); ok && c.PrintTextMarshalers {
+			if raw, err := t.MarshalText(); err == nil { // if NOT an error
+				return stringVal(string(raw))
+			}
 		}
 	}
 
@@ -63,7 +81,11 @@ func (c *Config) val2node(val reflect.Value) node {
 			if !c.IncludeUnexported && sf.PkgPath != "" {
 				continue
 			}
-			n = append(n, keyval{sf.Name, c.val2node(val.Field(i))})
+			field := val.Field(i)
+			if c.SkipZeroFields && isZeroVal(field) {
+				continue
+			}
+			n = append(n, keyval{sf.Name, c.val2node(field)})
 		}
 		return n
 	case reflect.Bool:

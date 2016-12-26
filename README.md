@@ -1,116 +1,57 @@
-# dex
+# dex - A federated OpenID Connect provider
 
-
-[![Build Status](https://travis-ci.org/coreos/dex.png?branch=master)](https://travis-ci.org/coreos/dex)
-[![Docker Repository on Quay.io](https://quay.io/repository/coreos/dex/status?token=2e772caf-ea17-45d5-8455-8fcf39dae6e1 "Docker Repository on Quay.io")](https://quay.io/repository/coreos/dex)
+[![Travis](https://api.travis-ci.org/coreos/dex.svg)](https://travis-ci.org/coreos/dex)
 [![GoDoc](https://godoc.org/github.com/coreos/dex?status.svg)](https://godoc.org/github.com/coreos/dex)
+[![Go Report Card](https://goreportcard.com/badge/github.com/coreos/dex)](https://goreportcard.com/report/github.com/coreos/dex)
 
-dex is a federated identity management service. It provides OpenID Connect (OIDC) and OAuth 2.0 to users, and can proxy to multiple remote identity providers (IdP) to drive actual authentication, as well as managing local username/password credentials.
+![logo](Documentation/logos/dex-horizontal-color.png)
 
-We named the project 'dex' because it is a central index of users that other pieces of software can authenticate against.
+Dex is an OpenID Connect server that connects to other identity providers. Clients use a standards-based OAuth2 flow to login users, while the actual authentication is performed by established user management systems such as Google, GitHub, FreeIPA, etc.
 
+[OpenID Connect][openid-connect] is a flavor of OAuth that builds on top of OAuth2 using the JOSE standards. This allows dex to provide:
 
-## Architecture
+* Short-lived, signed tokens with standard fields (such as email) issued on behalf of users.
+* "well-known" discovery of OAuth2 endpoints.
+* OAuth2 mechanisms such as refresh tokens and revocation for long term access.
+* Automatic signing key rotation.
 
-dex consists of multiple components:
+Standards-based token responses allows applications to interact with any OpenID Connect server instead of writing backend specific "access_token" dances. Systems that can already consume ID Tokens issued by dex include:
 
-- **dex-worker** is the primary server component of dex
-	- host a user-facing API that drives the OIDC protocol
-	- proxy to remote identity providers via "connectors"
-	- provides an API for administrators to manage users.
-- **dex-overlord** is an auxiliary process responsible for various administrative tasks:
-	- rotation of keys used by the workers to sign identity tokens
-	- garbage collection of stale data in the database
-	- provides an API for bootstrapping the system.
-- **dexctl** is a CLI tool used to manage a dex deployment
-	- configure identity provider connectors
-	- administer OIDC client identities
-- **database**; a database is used to for persistent storage for keys, users,
-  OAuth sessions and other data. Currently Postgres (9.4+) is the only supported
-  database.
+* [Kubernetes][kubernetes]
+* [AWS STS][aws-sts]
 
-A typical dex deployment consists of N dex-workers behind a load balancer, and one dex-overlord.
-The dex-workers directly handle user requests, so the loss of all workers can result in service downtime.
-The single dex-overlord runs its tasks periodically, so it does not need to maintain 100% uptime.
+## Kubernetes + dex
 
-## Who Should Use Dex?
+Dex's main production use is as an auth-N addon in CoreOS's enterprise Kubernetes solution, [Tectonic][tectonic]. Dex runs natively on top of any Kubernetes cluster using Third Party Resources and can drive API server authentication through the OpenID Connect plugin. Clients, such as the [Tectonic Console][tectonic-console] and `kubectl`, can act on behalf users who can login to the cluster through any identity provider dex supports.
 
-A non-exhaustive list of those who would benefit from using dex:
+More docs for running dex as a Kubernetes authenticator can be found [here](Documentation/kubernetes.md).
 
-- Those who want a language/framework-agnostic way to manage authentication.
-- Those who want to federate authentication from multiple providers of differing types.
-- Those who want to manage user credentials (e.g. username and password) and perform authentication locally.
-- Those who want to create an OIDC Identity Provider for multiple clients to authenticate against.
-- Those who want any or all of the above in a Free and Open Source project.
+## Documentation
 
-## Getting help with dex
+* [Getting started](Documentation/getting-started.md)
+* [What's new in v2](Documentation/v2.md)
+* [Storage options](Documentation/storage.md)
+* [Intro to OpenID Connect](Documentation/openid-connect.md)
+* [gRPC API](Documentation/api.md)
+* [Using Kubernetes with dex](Documentation/kubernetes.md)
+* Identity provider logins
+  * [LDAP](Documentation/ldap-connector.md)
+  * [GitHub](Documentation/github-connector.md)
+* Client libraries
+  * [Go][go-oidc]
 
-* For bugs and feature requests (including documentation!), file an [issue](https://github.com/coreos/dex/issues).
-* For general discussion about both using and developing dex, join the [dex-dev](https://groups.google.com/forum/#!forum/dex-dev) mailing list.
-* For more details on dex development plans, check out the [roadmap](https://github.com/coreos/dex/blob/master/Documentation/roadmap.md).
+## Getting help
 
-## Connectors
+* For bugs and feature requests (including documentation!), file an [issue][issues].
+* For general discussion about both using and developing dex, join the [dex-dev][dex-dev] mailing list.
+* For more details on dex development plans, check out the GitHub [milestones][milestones].
 
-Remote IdPs could implement any auth-N protocol. *Connectors* contain protocol-specific logic and are used to communicate with remote IdPs. Possible examples of connectors could be: OIDC, LDAP, Local credentials, Basic Auth, etc.
-
-dex ships with an OIDC connector, useful for authenticating with services like Google and Salesforce (or even other dex instances!) and a "local" connector, in which dex itself presents a UI for users to authenticate via dex-stored credentials.
-
-Future connectors can be developed and added as future interoperability requirements emerge.
-
-## Relevant Specifications
-
-These specs are referenced and implemented to some degree in the `jose` package of this project.
-
-- [JWK](https://tools.ietf.org/html/draft-ietf-jose-json-web-key-36)
-- [JWT](https://tools.ietf.org/html/draft-ietf-oauth-json-web-token-30)
-- [JWS](https://tools.ietf.org/html/draft-jones-json-web-signature-04)
-
-OpenID Connect (OIDC) is broken up into several specifications. The following (amongst others) are relevant:
-
-- [OpenID Connect Core 1.0](https://openid.net/specs/openid-connect-core-1_0.html)
-- [OpenID Connect Discovery 1.0](https://openid.net/specs/openid-connect-discovery-1_0.html)
-- [OAuth 2.0 RFC](https://tools.ietf.org/html/rfc6749)
-
-## Example OIDC Discovery Endpoints
-
-- https://accounts.google.com/.well-known/openid-configuration
-- https://login.salesforce.com/.well-known/openid-configuration
-
-## Next steps
-
-If you want to try out dex quickly with a single process and no database (do *not* run this way in production!) take a look at the [dev guide][dev-guide].
-
-For running the full stack check out the [getting started guide][getting-started].
-
-[getting-started]: https://github.com/coreos/dex/blob/master/Documentation/getting-started.md
-[dev-guide]: https://github.com/coreos/dex/blob/master/Documentation/dev-guide.md
-
-## Coming Soon
-
-- Multiple backing Identity Providers
-- Identity Management
-- Authorization
-
-## Similar Software
-
-### [Auth0](https://auth0.com)
-
-Auth0 is a commercial product which implements the OpenID Connect protocol and [JWT](http://jwt.io). It comes with built-in support for 30+ social providers (and provide extensibility points to add customs); enterprise providers like ADFS, SiteMinder, Ping, Tivoli, or any SAML provider; LDAP/AD connectors that can be run behind firewalls via [an open source agent/connector](https://github.com/auth0/ad-ldap-connector); built-in user/password stores with email and phone verification; legacy user/password stores running Mongo, PG, MySQL, SQL Server among others; multi-factor auth; passwordless support; custom extensibility of the auth pipeline through node.js and many other things.
-
-You could chain dex with Auth0, dex as RP and Auth0 as OpenId Connect Provider, and bring to dex all the providers that come in Auth0 plus the user management capabilities.
-
-### [CloudFoundry UAA](https://github.com/cloudfoundry/uaa)
-
->The UAA is a multi tenant identity management service, used in Cloud Foundry, but also available as a stand alone OAuth2 server.
-
-### [OmniAuth](https://github.com/intridea/omniauth)
-
-OmniAuth provides authentication federation at the language (Ruby) level, with a [wide range of integrations](https://github.com/intridea/omniauth/wiki/List-of-Strategies) available.
-
-### [Okta](http://developer.okta.com/product/)
-
-Okta is a commercial product which is similar to dex in that for it too, identity federation is a key feature. It connects to many more authentication providers than dex, and also does the federation in the opposite direction - it can be used as a SSO to other identity providers.
-
-### [Shibboleth](https://shibboleth.net/)
-
-Shibboleth is an open source system implementing the [SAML](https://www.oasis-open.org/standards#samlv2.0) standard, and can federate from a variety of backends, most notably LDAP.
+[openid-connect]: https://openid.net/connect/
+[kubernetes]: http://kubernetes.io/docs/admin/authentication/#openid-connect-tokens
+[aws-sts]: https://docs.aws.amazon.com/STS/latest/APIReference/Welcome.html
+[tectonic]: https://tectonic.com/
+[tectonic-console]: https://tectonic.com/enterprise/docs/latest/usage/index.html#tectonic-console
+[go-oidc]: https://github.com/coreos/go-oidc
+[issues]: https://github.com/coreos/dex/issues
+[dex-dev]: https://groups.google.com/forum/#!forum/dex-dev
+[milestones]: https://github.com/coreos/dex/milestones

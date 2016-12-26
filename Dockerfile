@@ -1,12 +1,23 @@
-FROM quay.io/brianredbeard/corebox
+FROM alpine:3.4
 
-ADD bin/dex-worker /opt/dex/bin/dex-worker
-ADD bin/dex-overlord /opt/dex/bin/dex-overlord
-ADD bin/dexctl /opt/dex/bin/dexctl
+MAINTAINER Ed Rooth <ed.rooth@coreos.com>
+MAINTAINER Eric Chiang <eric.chiang@coreos.com>
+MAINTAINER Rithu John <rithu.john@coreos.com>
 
-ENV DEX_WORKER_HTML_ASSETS /opt/dex/html/
-ADD static/html/* $DEX_WORKER_HTML_ASSETS
+# Dex connectors, such as GitHub and Google logins require root certificates.
+# Proper installations should manage those certificates, but it's a bad user
+# experience when this doesn't work out of the box.
+#
+# OpenSSL is required so wget can query HTTPS endpoints for health checking.
+RUN apk add --update ca-certificates openssl
 
-ENV DEX_WORKER_EMAIL_TEMPLATES /opt/dex/email/
-ADD static/email/* $DEX_WORKER_EMAIL_TEMPLATES
-ADD static/fixtures/emailer.json $DEX_WORKER_EMAIL_TEMPLATES/emailer.json
+COPY _output/bin/dex /usr/local/bin/dex
+
+# Import frontend assets and set the correct CWD directory so the assets
+# are in the default path.
+COPY web /web
+WORKDIR /
+
+ENTRYPOINT ["dex"]
+
+CMD ["version"]
