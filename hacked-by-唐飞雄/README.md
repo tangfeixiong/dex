@@ -1,9 +1,16 @@
 Content
---------
+========
 
 Change Log
 
 * Nov 6 2016, 1st distribution, Git Revision: 4b9bdf163db85373f3ea59bb227dec445c618cbf
+
+CI/CD
+
+[Kube-apiserver OIDC integration](./kube-apiserver-oidc-trial.md)
+
+CI/CD
+------
 
 ### Binary
 
