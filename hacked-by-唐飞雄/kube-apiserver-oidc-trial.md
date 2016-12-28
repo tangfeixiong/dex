@@ -1,5 +1,11 @@
 Content
----------
+=========
+
+V2
+---
+
+V1
+---
 
 Prerequistes
 
@@ -200,8 +206,38 @@ Restart
 Token from example app
 
 ![example-app](./example-app.png)
+
+Copy and paste into `kubectl` as
+
+	[tangfx@localhost ~]$ kubectl config view
+	apiVersion: v1
+	clusters:
+	- cluster:
+		certificate-authority-data: REDACTED
+		server: https://10.64.33.81:6443
+	  name: kube
+	contexts:
+	- context:
+		cluster: kube
+		user: admin
+	  name: kube-admin
+	current-context: kube-admin
+	kind: Config
+	preferences: {}
+	users:
+	- name: admin
+	  user:
+		client-certificate-data: REDACTED
+		client-key-data: REDACTED
+
+	[tangfx@localhost ~]$ kubectl --cluster=kube --token=eyJhbGciOiJSUzI1NiIsImtpZCI6IjMzN2Q1YWQ3OGM1NDRkNGY3ZDA4NTQ1MDEwYWUxODY4NDA5ODk0NjQiLCJ0eXAiOiJKV1QifQ.eyJhdWQiOiJleGFtcGxlLWFwcCIsImVtYWlsIjoidGFuZ2Z4OTBAZXhhbXBsZS5jb20iLCJleHAiOjE0ODMwMDg5NTMsImlhdCI6MTQ4Mjk2NTc1MywiaXNzIjoiaHR0cHM6Ly93d3cuMTAuNjQuMzMuOTAueGlwLmlvOjU1NTYiLCJuYW1lIjoidGFuZ2Z4OTAiLCJzdWIiOiJ0YW5nZng5MC1pZCJ9.Toi0kVEQJ_A8bYVwmNXLfTSnO4vu6rIcdeSr5OeeyxjRXfpIn3mMAg4UvNTRWkZDPY7F859OJdcNcrtat3bnvMkE09ybmL8WBLq059fQk397Sn8m3RSuVwm1pbRIx4bc0WZr3neZGjmqNZAccqBn6mus_H6ItemMCtEqCDNI7gQ8zRPEhAlMWC0F-rcAHsAVVoeIs_kOyw4RkqiemS3h26ZItplzNLmlS2v3qPu9K30bhcgQsMeoJUFsK2HDXNLWSdbRI6sLCiYOwpAh410Cx-aefiawWNslPS-3l4dZmmJdfoNpXwo0wIns34Enep3g_jriDD5naMor_fknKGDeQQ get all --all-namespaces
+	NAMESPACE     NAME                                       CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE
+	default       kubernetes                                 10.123.240.1     <none>        443/TCP    21h
+	kube-system   kubernetes-dashboard-ci                    10.123.251.129   <nodes>       80/TCP     17h
+	NAMESPACE     NAME                                       READY            STATUS        RESTARTS   AGE
+	kube-system   kubernetes-dashboard-ci-1507090773-xm84v   1/1              Running       0          17h
 	
-KUBECONFIG
+Or save into **KUBECONFIG**
 
 	[tangfx@localhost ~]$ kubectl config set-credentials dex-example --token=eyJhbGciOiJSUzI1NiIsImtpZCI6ImNmMjI4ZWM3ZjMzZWNiNjM1ODUwMDVjM2NjYzA1NzRmMTFiZWI2NTQiLCJ0eXAiOiJKV1QifQ.eyJhdWQiOiJleGFtcGxlLWFwcCIsImVtYWlsIjoidGFuZ2Z4OTBAZXhhbXBsZS5jb20iLCJleHAiOjE0ODI3NzAwMzAsImlhdCI6MTQ4MjcyNjgzMCwiaXNzIjoiaHR0cHM6Ly93d3cuMTAuNjQuMzMuOTAueGlwLmlvOjU1NTYiLCJuYW1lIjoidGFuZ2Z4OTAiLCJzdWIiOiJ0YW5nZng5MC1pZCJ9.DvNIhXhj7uyAJr-0n6Yo8Tqjkz5MVCJ-HWeJ6-9VN1hskC4nNMVo1lbOfKehgFPN84_17_jZmJPBUPIB738RJBkwigISHbQHmILQKGemPR6CS_s5lguaiRZpTLrVXY5FW6E0dfNjr9BW2YCTVavgi3zhVd2oSnT6J-vCupvf4hko28THsZ51t4LZPRsSYnrZ16IPqeUKOFsikdI7xF3CIuk4iWbeWYU2LSc55WAZezVnSJlwh6Jveikm3uDm9BDmJNM2-N32CLpjk6f4ML-RScYA9E77kxS5OdbzO7GTk_tm-qKZMP5AMErUGZkFtB2FQ724e1oTvCtftymN55ujZw
 	user "dex-example" set.

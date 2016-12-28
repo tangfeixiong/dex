@@ -5,11 +5,98 @@ Change Log
 
 * Nov 6 2016, 1st distribution, Git Revision: 4b9bdf163db85373f3ea59bb227dec445c618cbf
 
-CI/CD
-
 [Kube-apiserver OIDC integration](./kube-apiserver-oidc-trial.md)
 
-CI/CD
+V2
+---
+
+**systemd** config
+
+	[vagrant@master81 dex]$ cat /etc/systemd/system/coreos-dex.service
+	[Unit]
+	Description=CoreOS Dex OIDC Server
+	After=network.target
+	Documentation=https://github.com/coreos/dex
+
+	[Service]
+	Type=simple
+
+	EnvironmentFile=-/etc/sysconfig/coreos-dex
+	Environment=DEX_V1_BIN=/go/src/github.com/coreos/dex/bin/dex-worker
+	Environment=DEX_V2_BIN=/go/src/github.com/coreos/dex/bin/dex
+	Environment=DEX_V2_CONF=/go/src/github.com/coreos/dex/examples/config.yaml
+
+	User=root
+	WorkingDirectory=/go/src/github.com/coreos/dex
+
+	ExecStart=/go/src/github.com/coreos/dex/bin/dex serve $DEX_V2_CONF
+
+	# ExecStart=/bin/bash -c "${DEX_V1_BIN} ${DEX_V1_OPTS}"
+
+	# ExecStart= /go/bin/dex-worker --tls-cert-file="/srv/kubernetes/server.cert" --tls-key-file="/srv/kubernetes/server.key" --listen="https://0.0.0.0:5556" --issuer="https://www.10.64.33.90.xip.io:5556" --issuer-name=dex --clients="/go/src/github.com/coreos/dex/static/fixtures/clients.json" --connectors="/go/src/github.com/coreos/dex/static/fixtures/connectors.json" --email-cfg="/go/src/github.com/coreos/dex/static/fixtures/emailer.json" --users="/go/src/github.com/coreos/dex/static/fixtures/users.json" --html-assets="/go/src/github.com/coreos/dex/static/html" --enable-registration=true --no-db --log-debug=true --log-timestamps=true
+	# ExecStart= /go/bin/dex-worker --clients="/go/src/github.com/coreos/dex/static/fixtures/clients.json" --connectors="/go/src/github.com/coreos/dex/static/fixtures/connectors.json" --email-cfg="/go/src/github.com/coreos/dex/static/fixtures/emailer.json" --users="/go/src/github.com/coreos/dex/static/fixtures/users.json" --html-assets="/go/src/github.com/coreos/dex/static/html" --enable-registration=true --no-db
+
+	LimitNOFILE=4096
+
+	[Install]
+	WantedBy=multi-user.target
+
+
+	[vagrant@master81 dex]$ cat /etc/sysconfig/coreos-dex
+
+	DEX_V2_OPTS=" \
+	"
+
+	EXAMPLE_APP_V2_OPTS=" \
+	  --issuer=https://10.64.33.81:5554 \
+	  --issuer-root-ca=/etc/dex/ca.crt \
+	  --listen=http://10.64.33.81:5555 \
+	  --redirect-uri=http://10.64.33.81:5555/callback \
+	  --tls-cert=/etc/dex/admin.crt \
+	  --tls-key=/etc/dex/admin.key \
+	"
+
+	DEX_V1_OPTS=" \
+	  --tls-cert-file=/etc/coreos/dex/server.cert \
+	  --tls-key-file=/etc/coreos/dex/server.key \
+	  --listen=https://0.0.0.0:5556 \
+	  --issuer=https://www.10.64.33.90.xip.io:5556 \
+	  --issuer-name=dex \
+	  --clients=/go/src/github.com/coreos/dex/static/fixtures/clients.json \
+	  --connectors=/go/src/github.com/coreos/dex/static/fixtures/connectors.json \
+	  --email-cfg=/go/src/github.com/coreos/dex/static/fixtures/emailer.json \
+	  --users=/go/src/github.com/coreos/dex/static/fixtures/users.json \
+	  --html-assets=/go/src/github.com/coreos/dex/static/html \
+	  --enable-registration=true \
+	  --no-db \
+	  --log-debug=true \
+	  --log-timestamps=true \
+	"
+
+	EXAMPLE_APP_V1_OPTS=" \
+	  --client-id=example-app \
+	  --client-secret=ZXhhbXBsZS1hcHAtc2VjcmV0 \
+	  --discovery=https://www.10.64.33.90.xip.io:5556 \
+	  --listen=https://10.64.33.90:5555 \
+	  --redirect-url=https://www.10.64.33.90.xip.io:5555/callback \
+	  --tls-cert-file=/etc/coreos/dex/server.cert \
+	  --tls-key-file=/etc/coreos/dex/server.key \
+	  --trusted-ca-file=/etc/coreos/dex/ca.crt \
+	  --log-debug=true \
+	  --log-timestamps=true \
+	"
+
+
+**dex** config
+
+	[vagrant@master81 dex]$ ls examples/config.yaml
+	examples/config.yaml
+
+example app
+
+![auth](./dex-v2-auth.png)	
+
+V1
 ------
 
 ### Binary
