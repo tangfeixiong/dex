@@ -1,0 +1,33 @@
+[
+  {
+    "id": "openshift-web-console-oauth2-proxy",
+    "secret": "eW91ciBzZWNyZXQK",
+    "redirectURLs": ["https://www.10.64.33.101.xip.io:8443/oauth2callback/coreos-dex"]
+  },
+  {
+    "id": "XXX",
+    "secret": "c2VjcmV0ZQ==",
+    "redirectURLs": ["http://127.0.0.1:5555/callback"],
+    "trustedPeers": ["example-app", "public"]
+  },
+  {
+    "id": "example-app",
+    "secret": "ZXhhbXBsZS1hcHAtc2VjcmV0",
+    "redirectURLs": ["https://www.10.64.33.90.xip.io:5555/callback"]
+  },
+  {
+    "id": "example-cli",
+    "secret": "ZXhhbXBsZS1jbGktc2VjcmV0",
+    "redirectURLs": ["http://127.0.0.1:8000/admin/v1/oauth/login"]
+  },
+  {
+    "id": "public",
+    "secret": "ZXhhbXBsZS1hcHAtc2VjcmV0",
+    "public": true
+  },
+  {
+    "id": "oauth2_proxy",
+    "secret": "cHJveHk=",
+    "redirectURLs": ["http://127.0.0.1:4180/oauth2/callback"]
+  }
+]

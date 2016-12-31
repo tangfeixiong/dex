@@ -1,0 +1,14 @@
+[
+        {
+                "type": "local",
+                "id": "local"
+        },
+        {
+                "type": "oidc",
+                "id": "google",
+                "issuerURL": "https://accounts.google.com",
+                "clientID": "91xxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxov.apps.googleusercontent.com",
+                "clientSecret": "gFxxxxxx_xxxxxxx_xxxxx9P",
+                "trustedEmailProvider": true
+        }
+]

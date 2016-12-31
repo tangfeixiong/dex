@@ -1,0 +1,38 @@
+[
+    {
+        "id": "admin-id",
+        "email": "admin@example.com",
+        "displayName": "admin",
+        "password": "password",
+        "remoteIdentities": [
+            {
+                "connectorId": "local",
+                "id": "admin-id"
+            }
+        ]
+    },
+    {
+        "id": "tangfx90-id",
+        "email": "tangfx90@example.com",
+        "displayName": "tangfx90",
+        "password": "tangfx90",
+        "remoteIdentities": [
+            {
+                "connectorId": "local",
+                "id": "tangfx90-id"
+            }
+        ]
+    },
+    {
+        "id": "elroy-id",
+        "email": "elroy77@example.com",
+        "displayName": "Elroy Jonez",
+        "password": "bones",
+        "remoteIdentities": [
+            {
+                "connectorId": "local",
+                "id": "elroy-id"
+            }
+        ]
+    }
+]

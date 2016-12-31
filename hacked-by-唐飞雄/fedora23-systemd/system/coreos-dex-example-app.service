@@ -1,0 +1,27 @@
+[Unit]
+Description=CoreOS Dex Example app
+Documentation=https://github.com/coreos/dex
+After=coreos-dex.service
+Requires=coreos-dex.service
+
+[Service]
+Type=simple
+
+EnvironmentFile=-/etc/sysconfig/coreos-dex
+Environment=EXAMPLE_APP_V1_BIN=/go/src/github.com/coreos/dex/bin/example-app
+Environment=EXAMPLE_APP_V2_BIN=/go/src/github.com/coreos/dex/bin/example-app
+Environment=DEX_V2_CONF=/go/src/github.com/coreos/dex/examples/config.yaml
+
+User=root
+WorkingDirectory=/go/src/github.com/coreos/dex
+
+# ExecStart=/bin/bash -c "${EXAMPLE_APP_V2_BIN} ${EXAMPLE_APP_V2_OPTS}"
+
+ExecStart=/bin/bash -c "${EXAMPLE_APP_V1_BIN} ${EXAMPLE_APP_V1_OPTS}"
+
+# ExecStart=/bin/bash -c "${EXAMPLE_APP_V1_BIN} --client-id=example-app --client-secret=ZXhhbXBsZS1hcHAtc2VjcmV0 --discovery=https://www.10.64.33.90.xip.io:5556 --listen=\"https://10.64.33.90:5555\" --redirect-url=\"https://www.10.64.33.90.xip.io:5555/callback\"  --tls-cert-file=\"/etc/coreos/dex/server.cert\" --tls-key-file=\"/etc/coreos/dex/server.key\" --trusted-ca-file=\"/etc/coreos/dex/ca.crt\" --log-debug=true --log-timestamps=true"
+
+LimitNOFILE=4096
+
+[Install]
+WantedBy=multi-user.target

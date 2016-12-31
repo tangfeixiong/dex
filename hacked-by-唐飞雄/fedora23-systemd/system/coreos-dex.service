@@ -1,0 +1,25 @@
+[Unit]
+Description=CoreOS Dex OIDC Server
+After=network.target
+Documentation=https://github.com/coreos/dex
+
+[Service]
+Type=simple
+
+EnvironmentFile=-/etc/sysconfig/coreos-dex
+Environment=DEX_BIN=/go/bin/dex-worker
+
+User=root
+
+# ExecStart=/bin/bash -c "${DEX_BIN} ${DEX_OPTS}"
+
+ExecStart=/go/bin/dex-worker $DEX_OPTS
+
+# ExecStart= /go/bin/dex-worker --tls-cert-file="/srv/kubernetes/server.cert" --tls-key-file="/srv/kubernetes/server.key" --listen="https://0.0.0.0:5556" --issuer="https://www.10.64.33.90.xip.io:5556" --issuer-name=dex --clients="/go/src/github.com/coreos/dex/static/fixtures/clients.json" --connectors="/go/src/github.com/coreos/dex/static/fixtures/connectors.json" --email-cfg="/go/src/github.com/coreos/dex/static/fixtures/emailer.json" --users="/go/src/github.com/coreos/dex/static/fixtures/users.json" --html-assets="/go/src/github.com/coreos/dex/static/html" --enable-registration=true --no-db --log-debug=true --log-timestamps=true
+# ExecStart= /go/bin/dex-worker --clients="/go/src/github.com/coreos/dex/static/fixtures/clients.json" --connectors="/go/src/github.com/coreos/dex/static/fixtures/connectors.json" --email-cfg="/go/src/github.com/coreos/dex/static/fixtures/emailer.json" --users="/go/src/github.com/coreos/dex/static/fixtures/users.json" --html-assets="/go/src/github.com/coreos/dex/static/html" --enable-registration=true --no-db
+
+LimitNOFILE=4096
+
+[Install]
+WantedBy=multi-user.target
+
