@@ -1,0 +1,41 @@
+DEX_V2_OPTS=" \
+"
+
+EXAMPLE_APP_V2_OPTS=" \
+  --issuer=https://10.64.33.81:5554 \
+  --issuer-root-ca=/etc/dex/ca.crt \
+  --listen=http://10.64.33.81:5555 \
+  --redirect-uri=http://10.64.33.81:5555/callback \
+  --tls-cert=/etc/dex/admin.crt \
+  --tls-key=/etc/dex/admin.key \
+"
+
+DEX_V1_OPTS=" \
+  --tls-cert-file=/etc/coreos/dex/server.cert \
+  --tls-key-file=/etc/coreos/dex/server.key \
+  --listen=https://0.0.0.0:5556 \
+  --issuer=https://www.10.64.33.90.xip.io:5556 \
+  --issuer-name=dex \
+  --clients=/go/src/github.com/coreos/dex/static/fixtures/clients.json \
+  --connectors=/go/src/github.com/coreos/dex/static/fixtures/connectors.json \
+  --email-cfg=/go/src/github.com/coreos/dex/static/fixtures/emailer.json \
+  --users=/go/src/github.com/coreos/dex/static/fixtures/users.json \
+  --html-assets=/go/src/github.com/coreos/dex/static/html \
+  --enable-registration=true \
+  --no-db \
+  --log-debug=true \
+  --log-timestamps=true \
+"
+
+EXAMPLE_APP_V1_OPTS=" \
+  --client-id=example-app \
+  --client-secret=ZXhhbXBsZS1hcHAtc2VjcmV0 \
+  --discovery=https://www.10.64.33.90.xip.io:5556 \
+  --listen=https://10.64.33.90:5555 \
+  --redirect-url=https://www.10.64.33.90.xip.io:5555/callback \
+  --tls-cert-file=/etc/coreos/dex/server.cert \
+  --tls-key-file=/etc/coreos/dex/server.key \
+  --trusted-ca-file=/etc/coreos/dex/ca.crt \
+  --log-debug=true \
+  --log-timestamps=true \
+"
